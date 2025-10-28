@@ -108,3 +108,22 @@ canvas {
 .indicators p {
   margin: 0.3rem 0;
 }
+#news-list {
+  list-style-type: none;
+  padding: 0;
+}
+#news-list li {
+  margin-bottom: 0.75rem;
+}
+#news-list a {
+  text-decoration: none;
+  color: #0077cc;
+}
+#news-list a:hover {
+  text-decoration: underline;
+}
+.source {
+  font-size: 0.85rem;
+  color: #666;
+  margin-left: 0.5rem;
+}
