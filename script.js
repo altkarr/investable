@@ -6,27 +6,32 @@ const NEWS_KEY = "b6cLSbSqdzwpoiX8IX0chVOki8ZaiqrPodq6eyC4";
 
 // 📊 Fetch quote and profile
 async function fetchStockInfo(symbol) {
-  const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
-  const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`);
-  const quote = await quoteRes.json();
-  const profile = await profileRes.json();
-  return { quote, profile };
+  try {
+    const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
+    const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`);
+    const quote = await quoteRes.json();
+    const profile = await profileRes.json();
+    return { quote, profile };
+  } catch (err) {
+    console.error("Error fetching stock info:", err);
+    return null;
+  }
 }
 
 // 📈 Fetch historical candles
-async function fetchCandles(symbol, days = 180) {
-  const now = Math.floor(Date.now() / 1000);
-  const past = now - days * 86400;
-  const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${past}&to=${now}&token=${FINNHUB_KEY}`;
-  const res = await fetch(url);
-  return await res.json();
-}
-
-// 📊 Fetch indicators
-async function fetchIndicators(symbol) {
-  const url = `https://finnhub.io/api/v1/indicator?symbol=${symbol}&resolution=D&token=${FINNHUB_KEY}`;
-  const res = await fetch(url);
-  return await res.json();
+async function fetchCandles(symbol, days = 30) {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const past = now - days * 86400;
+    const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${past}&to=${now}&token=${FINNHUB_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !data.c || data.c.length < 2) return null;
+    return data;
+  } catch (err) {
+    console.error("Error fetching candles:", err);
+    return null;
+  }
 }
 
 // 🧠 Calculate performance
@@ -36,10 +41,8 @@ function calculatePerformance(candles) {
   const pct = (a, b) => (((b - a) / a) * 100).toFixed(2);
   return {
     "1D": pct(close[len - 2], close[len - 1]),
-    "7D": pct(close[len - 8], close[len - 1]),
-    "1M": pct(close[len - 22], close[len - 1]),
-    "3M": pct(close[len - 66], close[len - 1]),
-    "6M": pct(close[0], close[len - 1])
+    "7D": len >= 8 ? pct(close[len - 8], close[len - 1]) : "N/A",
+    "1M": len >= 22 ? pct(close[len - 22], close[len - 1]) : "N/A"
   };
 }
 
@@ -84,11 +87,8 @@ function renderIndicators(symbol, quote, performance) {
     <li><strong>Change (1D):</strong> ${performance["1D"]}%</li>
     <li><strong>Change (7D):</strong> ${performance["7D"]}%</li>
     <li><strong>Change (1M):</strong> ${performance["1M"]}%</li>
-    <li><strong>Change (3M):</strong> ${performance["3M"]}%</li>
-    <li><strong>Change (6M):</strong> ${performance["6M"]}%</li>
     <li><strong>Volume:</strong> ${quote.v.toLocaleString()}</li>
-    <li><strong>MACD:</strong> (placeholder — Finnhub MACD endpoint requires premium)</li>
-    <li><strong>Moving Averages:</strong> (placeholder — SMA/EMA requires premium)</li>
+    <li><strong>Momentum:</strong> ${quote.dp >= 0 ? "Positive" : "Negative"}</li>
   `;
 }
 
@@ -100,6 +100,10 @@ async function fetchNews(symbol) {
     const url = `https://api.marketaux.com/v1/news/all?symbols=${symbol}&language=en&api_token=${NEWS_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
+    if (!data.data || data.data.length === 0) {
+      list.innerHTML = "<li>No news available.</li>";
+      return;
+    }
     const items = data.data.slice(0, 5).map(article => {
       return `<li><a href="${article.url}" target="_blank">${article.title}</a> <span class="source">${article.source}</span></li>`;
     });
@@ -115,8 +119,17 @@ document.getElementById("searchButton").addEventListener("click", async () => {
   const symbol = document.getElementById("searchInput").value.toUpperCase();
   if (!symbol) return;
 
-  const { quote, profile } = await fetchStockInfo(symbol);
+  const info = await fetchStockInfo(symbol);
   const candles = await fetchCandles(symbol);
+
+  if (!info || !candles) {
+    document.getElementById("stockTableBody").innerHTML = `
+      <tr><td>${symbol}</td><td colspan="4">Data unavailable</td></tr>
+    `;
+    return;
+  }
+
+  const { quote, profile } = info;
   const performance = calculatePerformance(candles);
 
   document.getElementById("stockTableBody").innerHTML = `
