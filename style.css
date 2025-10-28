@@ -4,3 +4,16 @@ nav a { color: white; margin-right: 1rem; text-decoration: none; }
 main { display: flex; padding: 1rem; }
 section { flex: 1; margin: 0 1rem; }
 h2 { border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
+th {
+  background-color: #f4f4f4;
+}
