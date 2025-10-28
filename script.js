@@ -4,46 +4,62 @@ console.log("Investable Dashboard is connected!");
 const FINNHUB_KEY = "d40g571r01qqo3qhs74gd40g571r01qqo3qhs750";
 const NEWS_KEY = "b6cLSbSqdzwpoiX8IX0chVOki8ZaiqrPodq6eyC4";
 
-// 📊 Fetch quote and profile
-async function fetchStockInfo(symbol) {
+// 📊 Fetch top active US tickers
+async function fetchActiveTickers() {
+  const tbody = document.getElementById("stockTableBody");
+  tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+
   try {
-    const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
-    const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`);
-    const quote = await quoteRes.json();
-    const profile = await profileRes.json();
-    return { quote, profile };
+    const symbolRes = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FINNHUB_KEY}`);
+    const symbols = await symbolRes.json();
+    const topSymbols = symbols.slice(0, 50); // Sample slice
+
+    const rows = [];
+    for (const stock of topSymbols) {
+      const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stock.symbol}&token=${FINNHUB_KEY}`);
+      const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${stock.symbol}&token=${FINNHUB_KEY}`);
+      const quote = await quoteRes.json();
+      const profile = await profileRes.json();
+
+      if (!quote || !quote.c || !profile.name) continue;
+
+      rows.push({
+        symbol: stock.symbol,
+        name: profile.name,
+        price: quote.c.toFixed(2),
+        change: quote.dp.toFixed(2),
+        sector: profile.finnhubIndustry || "N/A",
+        volume: quote.v
+      });
+
+      if (rows.length >= 10) break;
+    }
+
+    tbody.innerHTML = rows.map(row => `
+      <tr data-symbol="${row.symbol}">
+        <td>${row.symbol}</td>
+        <td>${row.name}</td>
+        <td>$${row.price}</td>
+        <td style="color:${row.change >= 0 ? "green" : "red"}">${row.change}%</td>
+        <td>${row.sector}</td>
+      </tr>
+    `).join("");
+
+    attachRowClickHandlers(rows);
   } catch (err) {
-    console.error("Error fetching stock info:", err);
-    return null;
+    console.error("Error fetching active tickers:", err);
+    tbody.innerHTML = "<tr><td colspan='5'>Failed to load data.</td></tr>";
   }
 }
 
-// 📈 Fetch historical candles
+// 📈 Fetch candles
 async function fetchCandles(symbol, days = 30) {
-  try {
-    const now = Math.floor(Date.now() / 1000);
-    const past = now - days * 86400;
-    const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${past}&to=${now}&token=${FINNHUB_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data || !data.c || data.c.length < 2) return null;
-    return data;
-  } catch (err) {
-    console.error("Error fetching candles:", err);
-    return null;
-  }
-}
-
-// 🧠 Calculate performance
-function calculatePerformance(candles) {
-  const close = candles.c;
-  const len = close.length;
-  const pct = (a, b) => (((b - a) / a) * 100).toFixed(2);
-  return {
-    "1D": pct(close[len - 2], close[len - 1]),
-    "7D": len >= 8 ? pct(close[len - 8], close[len - 1]) : "N/A",
-    "1M": len >= 22 ? pct(close[len - 22], close[len - 1]) : "N/A"
-  };
+  const now = Math.floor(Date.now() / 1000);
+  const past = now - days * 86400;
+  const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${past}&to=${now}&token=${FINNHUB_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.c && data.c.length > 1 ? data : null;
 }
 
 // 📈 Render chart
@@ -80,13 +96,11 @@ function renderChart(symbol, candles) {
 }
 
 // 📋 Render indicators
-function renderIndicators(symbol, quote, performance) {
+function renderIndicators(symbol, quote) {
   const list = document.getElementById("indicatorList");
   list.innerHTML = `
     <li><strong>Price:</strong> $${quote.c.toFixed(2)}</li>
-    <li><strong>Change (1D):</strong> ${performance["1D"]}%</li>
-    <li><strong>Change (7D):</strong> ${performance["7D"]}%</li>
-    <li><strong>Change (1M):</strong> ${performance["1M"]}%</li>
+    <li><strong>Change (1D):</strong> ${quote.dp.toFixed(2)}%</li>
     <li><strong>Volume:</strong> ${quote.v.toLocaleString()}</li>
     <li><strong>Momentum:</strong> ${quote.dp >= 0 ? "Positive" : "Negative"}</li>
   `;
@@ -114,38 +128,20 @@ async function fetchNews(symbol) {
   }
 }
 
-// 🔍 Search handler
-document.getElementById("searchButton").addEventListener("click", async () => {
-  const symbol = document.getElementById("searchInput").value.toUpperCase();
-  if (!symbol) return;
-
-  const info = await fetchStockInfo(symbol);
-  const candles = await fetchCandles(symbol);
-
-  if (!info || !candles) {
-    document.getElementById("stockTableBody").innerHTML = `
-      <tr><td>${symbol}</td><td colspan="4">Data unavailable</td></tr>
-    `;
-    return;
-  }
-
-  const { quote, profile } = info;
-  const performance = calculatePerformance(candles);
-
-  document.getElementById("stockTableBody").innerHTML = `
-    <tr>
-      <td>${symbol}</td>
-      <td>${profile.name || symbol}</td>
-      <td>$${quote.c.toFixed(2)}</td>
-      <td style="color:${quote.dp >= 0 ? "green" : "red"}">${quote.dp.toFixed(2)}%</td>
-      <td>${profile.finnhubIndustry || "N/A"}</td>
-    </tr>
-  `;
-
-  renderChart(symbol, candles);
-  renderIndicators(symbol, quote, performance);
-  fetchNews(symbol);
-});
+// 🖱 Row click handler
+function attachRowClickHandlers(rows) {
+  document.querySelectorAll("#stockTableBody tr").forEach(row => {
+    row.addEventListener("click", async () => {
+      const symbol = row.dataset.symbol;
+      const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
+      const quote = await quoteRes.json();
+      const candles = await fetchCandles(symbol);
+      if (candles) renderChart(symbol, candles);
+      renderIndicators(symbol, quote);
+      fetchNews(symbol);
+    });
+  });
+}
 
 // 🌙 Dark mode toggle
 document.getElementById("darkModeToggle").addEventListener("click", () => {
@@ -177,4 +173,9 @@ document.addEventListener("scroll", () => {
     link.classList.remove("active");
     if (link.getAttribute("href").includes(current)) link.classList.add("active");
   });
+});
+
+// 🚀 Initialize
+document.addEventListener("DOMContentLoaded", () => {
+  fetchActiveTickers();
 });
