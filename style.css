@@ -182,3 +182,25 @@ body, .card, header, footer {
 .tab-content {
   padding: 1rem 0;
 }
+// Tab switching logic
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".tab-button");
+  const contents = document.querySelectorAll(".tab-content");
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      const tab = button.dataset.tab;
+
+      buttons.forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      contents.forEach(content => {
+        content.style.display = content.id === tab ? "block" : "none";
+      });
+    });
+  });
+});
+section {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
