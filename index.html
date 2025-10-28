@@ -23,12 +23,8 @@
     <section class="card" id="screener">
       <h2>📊 Stock Screener</h2>
       <div class="filters">
-        <input type="text" id="searchInput" placeholder="Search stocks..." />
-        <select id="sectorFilter">
-          <option value="all">All Sectors</option>
-          <option value="Technology">Technology</option>
-          <option value="Healthcare">Healthcare</option>
-        </select>
+        <input type="text" id="searchInput" placeholder="Search ticker..." />
+        <button id="searchButton">🔍 Search</button>
       </div>
       <table>
         <thead>
@@ -36,7 +32,7 @@
             <th>Symbol</th>
             <th>Company</th>
             <th>Price</th>
-            <th>Change</th>
+            <th>Change (1D)</th>
             <th>Sector</th>
           </tr>
         </thead>
@@ -50,17 +46,15 @@
       <h2>📈 Charts & Indicators</h2>
       <div class="tabs">
         <button class="tab-button active" data-tab="price">Price</button>
-        <button class="tab-button" data-tab="rsi">RSI</button>
-        <button class="tab-button" data-tab="macd">MACD</button>
+        <button class="tab-button" data-tab="indicators">Indicators</button>
       </div>
       <div class="tab-content" id="price">
         <canvas id="priceChart"></canvas>
       </div>
-      <div class="tab-content" id="rsi" style="display:none;">
-        <p><strong>RSI:</strong> Relative Strength Index placeholder</p>
-      </div>
-      <div class="tab-content" id="macd" style="display:none;">
-        <p><strong>MACD:</strong> Moving Average Convergence Divergence placeholder</p>
+      <div class="tab-content" id="indicators" style="display:none;">
+        <ul id="indicatorList">
+          <!-- Technical indicators will populate here -->
+        </ul>
       </div>
     </section>
 
