@@ -1,7 +1,6 @@
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
-  padding: 0;
   background: linear-gradient(to bottom right, #f5f7fa, #e4ecf2);
   transition: background 0.3s, color 0.3s;
 }
@@ -18,18 +17,28 @@ header {
   background: #1a1a1a;
   color: white;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 nav a {
-  color: white;
   margin-right: 1rem;
+  color: white;
   text-decoration: none;
 }
 
 .nav-link.active {
   font-weight: bold;
-  border-bottom: 2px solid #0077cc;
+  border-bottom: 2px solid #00bfff;
+}
+
+#darkModeToggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
 }
 
 main {
@@ -44,8 +53,8 @@ main {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   padding: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
   border-top: 4px solid #0077cc;
+  transition: transform 0.2s;
 }
 
 body.dark-mode .card {
@@ -56,34 +65,35 @@ body.dark-mode .card {
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-section {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  overflow: hidden;
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+input, select {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
 th, td {
-  border: 1px solid #ddd;
   padding: 0.5rem;
+  border: 1px solid #ddd;
   text-align: left;
 }
 
 th {
   background-color: #f4f4f4;
   cursor: pointer;
-  user-select: none;
-}
-
-th:hover {
-  background-color: #e0e0e0;
 }
 
 tbody tr:hover {
@@ -106,10 +116,6 @@ tbody tr:hover {
 .tab-button.active {
   background-color: #0077cc;
   color: white;
-}
-
-.tab-button:hover {
-  background-color: #ddd;
 }
 
 .tab-content {
@@ -142,6 +148,14 @@ tbody tr:hover {
   margin-left: 0.5rem;
 }
 
+footer {
+  background: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -149,8 +163,5 @@ html {
 @media (max-width: 900px) {
   main {
     grid-template-columns: 1fr;
-  }
-  .card {
-    margin-bottom: 1rem;
   }
 }
