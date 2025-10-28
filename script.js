@@ -1,12 +1,10 @@
 console.log("Investable Dashboard is connected!");
 
-// 🔑 API Keys
 const FINNHUB_KEY = "d40g571r01qqo3qhs74gd40g571r01qqo3qhs750";
 const NEWS_KEY = "b6cLSbSqdzwpoiX8IX0chVOki8ZaiqrPodq6eyC4";
-
 let activeChart = null;
 
-// 📊 Fetch top active US tickers
+// 📊 Load active tickers
 async function fetchActiveTickers() {
   const tbody = document.getElementById("stockTableBody");
   tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
@@ -14,7 +12,7 @@ async function fetchActiveTickers() {
   try {
     const symbolRes = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FINNHUB_KEY}`);
     const symbols = await symbolRes.json();
-    const topSymbols = symbols.slice(0, 50); // Sample slice
+    const topSymbols = symbols.slice(0, 50);
 
     const rows = [];
     for (const stock of topSymbols) {
@@ -32,8 +30,7 @@ async function fetchActiveTickers() {
         name: profile.name,
         price: quote.c.toFixed(2),
         change: quote.dp.toFixed(2),
-        sector: profile.finnhubIndustry || "N/A",
-        volume: quote.v
+        sector: profile.finnhubIndustry || "N/A"
       });
 
       if (rows.length >= 10) break;
@@ -51,7 +48,7 @@ async function fetchActiveTickers() {
 
     attachRowClickHandlers();
   } catch (err) {
-    console.error("Error fetching active tickers:", err);
+    console.error("Error loading tickers:", err);
     tbody.innerHTML = "<tr><td colspan='5'>Failed to load data.</td></tr>";
   }
 }
@@ -133,25 +130,9 @@ async function fetchNews(symbol) {
   }
 }
 
-// 🖱 Row click handler
-function attachRowClickHandlers() {
-  document.querySelectorAll("#stockTableBody tr").forEach(row => {
-    row.addEventListener("click", async () => {
-      const symbol = row.dataset.symbol;
-      await loadTickerData(symbol);
-    });
-  });
-}
-
-// 🔍 Search handler
-document.getElementById("searchButton").addEventListener("click", async () => {
-  const symbol = document.getElementById("searchInput").value.toUpperCase();
-  if (!symbol) return;
-  await loadTickerData(symbol);
-});
-
-// 📦 Load full ticker data
+// 🔁 Load ticker data
 async function loadTickerData(symbol) {
+  console.log("Loading ticker:", symbol);
   try {
     const [quoteRes, profileRes, candles] = await Promise.all([
       fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()),
@@ -181,6 +162,26 @@ async function loadTickerData(symbol) {
   } catch (err) {
     console.error("Error loading ticker:", err);
   }
+}
+
+// 🖱 Row click handler
+function attachRowClickHandlers() {
+  document.querySelectorAll("#stockTableBody tr").forEach(row => {
+    row.addEventListener("click", () => {
+      const symbol = row.dataset.symbol;
+      loadTickerData(symbol);
+    });
+  });
+}
+
+// 🔍 Search handler
+function attachSearchHandler() {
+  const button = document.getElementById("searchButton");
+  button.addEventListener("click", () => {
+    const symbol = document.getElementById("searchInput").value.toUpperCase();
+    if (!symbol) return;
+    loadTickerData(symbol);
+  });
 }
 
 // 🌙 Dark mode toggle
@@ -218,4 +219,5 @@ document.addEventListener("scroll", () => {
 // 🚀 Initialize
 document.addEventListener("DOMContentLoaded", () => {
   fetchActiveTickers();
+  attachSearchHandler();
 });
