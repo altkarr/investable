@@ -9,20 +9,14 @@ table {
   border-collapse: collapse;
   margin-top: 1rem;
 }
-th, td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  text-align: left;
-}
-th {
-  background-color: #f4f4f4;
-}
 th {
   background-color: #f4f4f4;
   cursor: pointer;
+  user-select: none;
 }
 th:hover {
   background-color: #e0e0e0;
+}
 }
 #chart-area {
   margin-top: 1rem;
