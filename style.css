@@ -151,3 +151,6 @@ canvas {
   color: #666;
   margin-left: 0.5rem;
 }
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
