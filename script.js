@@ -141,17 +141,41 @@ async function loadTickerData(symbol) {
       fetchCandles(symbol)
     ]);
 
-    // 🛡 Validate quote and candle data
-    const validQuote = quoteRes && typeof quoteRes.c === "number" && quoteRes.c > 0;
-    const validCandles = candles && Array.isArray(candles.c) && candles.c.length > 1;
+    const hasQuote = quoteRes && typeof quoteRes.c === "number";
+    const hasCandles = candles && Array.isArray(candles.c) && candles.c.length > 1;
 
-    if (!validQuote || !validCandles) {
-      console.warn("⚠️ Invalid data for:", symbol);
-      console.log("Quote response:", quoteRes);
-      console.log("Candle response:", candles);
-      alert(`No data available for ${symbol}`);
+    if (!hasQuote) {
+      console.warn("⚠️ Quote missing for:", symbol);
+      alert(`No quote data available for ${symbol}`);
       return;
     }
+
+    // 🧾 Update table
+    document.getElementById("stockTableBody").innerHTML = `
+      <tr data-symbol="${symbol}">
+        <td>${symbol}</td>
+        <td>${profileRes.name || symbol}</td>
+        <td>$${quoteRes.c.toFixed(2)}</td>
+        <td style="color:${quoteRes.dp >= 0 ? "green" : "red"}">${quoteRes.dp.toFixed(2)}%</td>
+        <td>${profileRes.finnhubIndustry || "N/A"}</td>
+      </tr>
+    `;
+
+    attachRowClickHandlers();
+    renderIndicators(symbol, quoteRes);
+    fetchNews(symbol);
+
+    if (hasCandles) {
+      renderChart(symbol, candles);
+    } else {
+      console.warn("⚠️ No candle data for:", symbol);
+      document.getElementById("priceChart").getContext("2d").clearRect(0, 0, 400, 200);
+    }
+  } catch (err) {
+    console.error("❌ Error loading ticker:", err);
+    alert(`Failed to load data for ${symbol}`);
+  }
+}
 
     // 🧾 Update table with searched ticker
     document.getElementById("stockTableBody").innerHTML = `
