@@ -16,71 +16,42 @@
   </header>
 
   <main>
-    <section>
-      <h2>Stock Screener</h2>
-      <table>
-  <thead>
-    <tr>
-      <th>Symbol</th>
-      <th>Company</th>
-      <th>Price</th>
-      <th>Change</th>
-      <th>Sector</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>AAPL</td>
-      <td>Apple Inc.</td>
-      <td>$175.20</td>
-      <td>+1.2%</td>
-      <td>Technology</td>
-    </tr>
-    <tr>
-      <td>MSFT</td>
-      <td>Microsoft Corp.</td>
-      <td>$320.50</td>
-      <td>-0.5%</td>
-      <td>Technology</td>
-    </tr>
-    <tr>
-      <td>JNJ</td>
-      <td>Johnson & Johnson</td>
-      <td>$155.80</td>
-      <td>+0.3%</td>
-      <td>Healthcare</td>
-    </tr>
-  </tbody>
-</table>
-    </section>
+    <body>
+  <header>
+    <h1>Investable Dashboard</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Screener</a>
+      <a href="#">News</a>
+    </nav>
+  </header>
 
-    <section>
-      <h2>Charts & Indicators</h2>
-     <div id="chart-area">
-  <h3>Price Chart</h3>
-  <canvas id="priceChart" width="400" height="200"></canvas>
+  <main>
+    <div class="card">
+      <section>
+        <h2>Stock Screener</h2>
+        <!-- your stock table goes here -->
+      </section>
+    </div>
 
-  <h3>Technical Indicators</h3>
-  <ul>
-    <li>RSI: (placeholder)</li>
-    <li>MACD: (placeholder)</li>
-    <li>Moving Averages: (placeholder)</li>
-  </ul>
-</div>
-    </section>
+    <div class="card">
+      <section>
+        <h2>Charts & Indicators</h2>
+        <!-- chart placeholders go here -->
+      </section>
+    </div>
 
-    <section>
-      <h2>News Feed</h2>
-    <ul id="news-list">
-  <li>[Headline 1 placeholder]</li>
-  <li>[Headline 2 placeholder]</li>
-  <li>[Headline 3 placeholder]</li>
-</ul>
-    </section>
+    <div class="card">
+      <section>
+        <h2>News Feed</h2>
+        <!-- news list goes here -->
+      </section>
+    </div>
   </main>
+
+  <footer>
+    <p>Investable Dashboard © 2025 — For informational purposes only, not investment advice.</p>
+  </footer>
+
   <script src="script.js"></script>
-  <footer style="background:#1a1a1a; color:white; text-align:center; padding:1rem; margin-top:2rem;">
-  <p>Investable Dashboard © 2025 — For informational purposes only, not investment advice.</p>
-</footer>
 </body>
-</html>
