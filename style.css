@@ -204,3 +204,19 @@ section {
   transition: max-height 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
 }
+#news-list a {
+  text-decoration: none;
+  color: #0077cc;
+  transition: color 0.2s;
+}
+
+#news-list a:hover {
+  color: #005fa3;
+  text-decoration: underline;
+}
+body {
+  background: linear-gradient(to bottom right, #f5f7fa, #e4ecf2);
+}
+body.dark-mode {
+  background: linear-gradient(to bottom right, #121212, #1e1e1e);
+}
