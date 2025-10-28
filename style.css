@@ -63,3 +63,11 @@ h2 {
   padding-bottom: 0.5rem;
   margin-top: 0;
 }
+@media (max-width: 900px) {
+  main {
+    flex-direction: column;
+  }
+  .card {
+    margin-bottom: 1rem;
+  }
+}
