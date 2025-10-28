@@ -132,7 +132,8 @@ async function fetchNews(symbol) {
 
 // 🔁 Load ticker data
 async function loadTickerData(symbol) {
-  console.log("Loading ticker:", symbol);
+  console.log(`🔍 Loading ticker: ${symbol}`);
+
   try {
     const [quoteRes, profileRes, candles] = await Promise.all([
       fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()),
@@ -140,11 +141,19 @@ async function loadTickerData(symbol) {
       fetchCandles(symbol)
     ]);
 
-    if (!quoteRes || !quoteRes.c || !candles) {
+    // 🛡 Validate quote and candle data
+    const validQuote = quoteRes && typeof quoteRes.c === "number" && quoteRes.c > 0;
+    const validCandles = candles && Array.isArray(candles.c) && candles.c.length > 1;
+
+    if (!validQuote || !validCandles) {
+      console.warn("⚠️ Invalid data for:", symbol);
+      console.log("Quote response:", quoteRes);
+      console.log("Candle response:", candles);
       alert(`No data available for ${symbol}`);
       return;
     }
 
+    // 🧾 Update table with searched ticker
     document.getElementById("stockTableBody").innerHTML = `
       <tr data-symbol="${symbol}">
         <td>${symbol}</td>
@@ -155,12 +164,13 @@ async function loadTickerData(symbol) {
       </tr>
     `;
 
-    attachRowClickHandlers();
-    renderChart(symbol, candles);
-    renderIndicators(symbol, quoteRes);
-    fetchNews(symbol);
+    attachRowClickHandlers(); // 🔁 Rebind click events
+    renderChart(symbol, candles); // 📈 Draw chart
+    renderIndicators(symbol, quoteRes); // 📋 Show indicators
+    fetchNews(symbol); // 📰 Load news
   } catch (err) {
-    console.error("Error loading ticker:", err);
+    console.error("❌ Error loading ticker:", err);
+    alert(`Failed to load data for ${symbol}`);
   }
 }
 
