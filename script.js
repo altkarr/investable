@@ -4,6 +4,8 @@ console.log("Investable Dashboard is connected!");
 const FINNHUB_KEY = "d40g571r01qqo3qhs74gd40g571r01qqo3qhs750";
 const NEWS_KEY = "b6cLSbSqdzwpoiX8IX0chVOki8ZaiqrPodq6eyC4";
 
+let activeChart = null;
+
 // 📊 Fetch top active US tickers
 async function fetchActiveTickers() {
   const tbody = document.getElementById("stockTableBody");
@@ -16,8 +18,10 @@ async function fetchActiveTickers() {
 
     const rows = [];
     for (const stock of topSymbols) {
-      const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stock.symbol}&token=${FINNHUB_KEY}`);
-      const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${stock.symbol}&token=${FINNHUB_KEY}`);
+      const [quoteRes, profileRes] = await Promise.all([
+        fetch(`https://finnhub.io/api/v1/quote?symbol=${stock.symbol}&token=${FINNHUB_KEY}`),
+        fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${stock.symbol}&token=${FINNHUB_KEY}`)
+      ]);
       const quote = await quoteRes.json();
       const profile = await profileRes.json();
 
@@ -45,7 +49,7 @@ async function fetchActiveTickers() {
       </tr>
     `).join("");
 
-    attachRowClickHandlers(rows);
+    attachRowClickHandlers();
   } catch (err) {
     console.error("Error fetching active tickers:", err);
     tbody.innerHTML = "<tr><td colspan='5'>Failed to load data.</td></tr>";
@@ -68,7 +72,8 @@ function renderChart(symbol, candles) {
   const labels = candles.t.map(ts => new Date(ts * 1000).toLocaleDateString());
   const prices = candles.c;
 
-  new Chart(ctx, {
+  if (activeChart) activeChart.destroy();
+  activeChart = new Chart(ctx, {
     type: "line",
     data: {
       labels,
@@ -129,18 +134,53 @@ async function fetchNews(symbol) {
 }
 
 // 🖱 Row click handler
-function attachRowClickHandlers(rows) {
+function attachRowClickHandlers() {
   document.querySelectorAll("#stockTableBody tr").forEach(row => {
     row.addEventListener("click", async () => {
       const symbol = row.dataset.symbol;
-      const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`);
-      const quote = await quoteRes.json();
-      const candles = await fetchCandles(symbol);
-      if (candles) renderChart(symbol, candles);
-      renderIndicators(symbol, quote);
-      fetchNews(symbol);
+      await loadTickerData(symbol);
     });
   });
+}
+
+// 🔍 Search handler
+document.getElementById("searchButton").addEventListener("click", async () => {
+  const symbol = document.getElementById("searchInput").value.toUpperCase();
+  if (!symbol) return;
+  await loadTickerData(symbol);
+});
+
+// 📦 Load full ticker data
+async function loadTickerData(symbol) {
+  try {
+    const [quoteRes, profileRes, candles] = await Promise.all([
+      fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()),
+      fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`).then(r => r.json()),
+      fetchCandles(symbol)
+    ]);
+
+    if (!quoteRes || !quoteRes.c || !candles) {
+      alert(`No data available for ${symbol}`);
+      return;
+    }
+
+    document.getElementById("stockTableBody").innerHTML = `
+      <tr data-symbol="${symbol}">
+        <td>${symbol}</td>
+        <td>${profileRes.name || symbol}</td>
+        <td>$${quoteRes.c.toFixed(2)}</td>
+        <td style="color:${quoteRes.dp >= 0 ? "green" : "red"}">${quoteRes.dp.toFixed(2)}%</td>
+        <td>${profileRes.finnhubIndustry || "N/A"}</td>
+      </tr>
+    `;
+
+    attachRowClickHandlers();
+    renderChart(symbol, candles);
+    renderIndicators(symbol, quoteRes);
+    fetchNews(symbol);
+  } catch (err) {
+    console.error("Error loading ticker:", err);
+  }
 }
 
 // 🌙 Dark mode toggle
