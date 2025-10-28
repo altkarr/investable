@@ -84,3 +84,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+body.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-mode header,
+body.dark-mode footer {
+  background: #000;
+}
+
+body.dark-mode .card {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode th {
+  background-color: #333;
+}
