@@ -85,7 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
       button.classList.add("active");
 
       contents.forEach(content => {
-        content.style.display = content.id === tab ? "block" : "none";
+        if (content.style.maxHeight) {
+  content.style.maxHeight = null;
+  content.style.opacity = 0;
+} else {
+  content.style.maxHeight = content.scrollHeight + "px";
+  content.style.opacity = 1;
+}
       });
     });
   });
