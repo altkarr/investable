@@ -20,27 +20,24 @@
   </header>
 
   <main>
-    <section class="card" id="screener">
-      <h2>📊 Stock Screener</h2>
-      <div class="filters">
-        <input type="text" id="searchInput" placeholder="Search ticker..." />
-        <button id="searchButton">🔍 Search</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Company</th>
-            <th>Price</th>
-            <th>Change (1D)</th>
-            <th>Sector</th>
-          </tr>
-        </thead>
-        <tbody id="stockTableBody">
-          <!-- Live data will populate here -->
-        </tbody>
-      </table>
-    </section>
+   <section class="card" id="screener">
+  <h2>📊 Active Stock Screener</h2>
+  <p>Click a row to view chart and indicators.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Company</th>
+        <th>Price</th>
+        <th>Change (1D)</th>
+        <th>Sector</th>
+      </tr>
+    </thead>
+    <tbody id="stockTableBody">
+      <tr><td colspan="5">Loading active tickers...</td></tr>
+    </tbody>
+  </table>
+</section>
 
     <section class="card" id="charts">
       <h2>📈 Charts & Indicators</h2>
