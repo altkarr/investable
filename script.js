@@ -1,11 +1,10 @@
-// script.js
 console.log("Investable Dashboard is connected!");
 
-// Example: highlight rows where Change is positive or negative
+// Color-code Change column
 document.addEventListener("DOMContentLoaded", () => {
   const rows = document.querySelectorAll("tbody tr");
   rows.forEach(row => {
-    const changeCell = row.cells[3]; // 4th column = Change
+    const changeCell = row.cells[3];
     if (changeCell) {
       const value = changeCell.textContent.trim();
       if (value.startsWith("+")) {
@@ -16,7 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-// Enable column sorting
+
+// Column sorting
 document.addEventListener("DOMContentLoaded", () => {
   const table = document.querySelector("table");
   const headers = table.querySelectorAll("th");
@@ -32,7 +32,7 @@ function sortTableByColumn(table, columnIndex) {
   const tbody = table.querySelector("tbody");
   const rows = Array.from(tbody.querySelectorAll("tr"));
 
-  const isNumeric = columnIndex === 2 || columnIndex === 3; // Price or Change
+  const isNumeric = columnIndex === 2 || columnIndex === 3;
   const direction = table.dataset.sortDirection === "asc" ? "desc" : "asc";
   table.dataset.sortDirection = direction;
 
@@ -52,6 +52,7 @@ function sortTableByColumn(table, columnIndex) {
 
   rows.forEach(row => tbody.appendChild(row));
 }
+
 // Collapsible sections
 document.addEventListener("DOMContentLoaded", () => {
   const headers = document.querySelectorAll("section h2");
@@ -60,11 +61,18 @@ document.addEventListener("DOMContentLoaded", () => {
     header.addEventListener("click", () => {
       const content = header.nextElementSibling;
       if (content) {
-        content.style.display = content.style.display === "none" ? "block" : "none";
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null;
+          content.style.opacity = 0;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+          content.style.opacity = 1;
+        }
       }
     });
   });
 });
+
 // Dark mode toggle
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("darkModeToggle");
@@ -72,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("dark-mode");
   });
 });
+
 // Tab switching logic
 document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelectorAll(".tab-button");
@@ -85,14 +94,43 @@ document.addEventListener("DOMContentLoaded", () => {
       button.classList.add("active");
 
       contents.forEach(content => {
-        if (content.style.maxHeight) {
-  content.style.maxHeight = null;
-  content.style.opacity = 0;
-} else {
-  content.style.maxHeight = content.scrollHeight + "px";
-  content.style.opacity = 1;
-}
+        content.style.display = content.id === tab ? "block" : "none";
       });
     });
+  });
+});
+
+// Search filter for stock table
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchInput");
+  const rows = document.querySelectorAll("tbody tr");
+
+  searchInput.addEventListener("keyup", () => {
+    const filter = searchInput.value.toLowerCase();
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(filter) ? "" : "none";
+    });
+  });
+});
+
+// Highlight active nav link on scroll
+document.addEventListener("scroll", () => {
+  const sections = document.querySelectorAll("section");
+  const navLinks = document.querySelectorAll(".nav-link");
+
+  let current = "";
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) {
+      current = section.getAttribute("id");
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.classList.remove("active");
+    if (link.getAttribute("href").includes(current)) {
+      link.classList.add("active");
+    }
   });
 });
