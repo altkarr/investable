@@ -1,94 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Investable Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
-    <button id="darkModeToggle" style="float:right; padding:0.5rem 1rem;">🌙 Dark Mode</button>
     <h1>Investable Dashboard</h1>
     <nav>
       <a href="#screener" class="nav-link">📊 Screener</a>
       <a href="#charts" class="nav-link">📈 Charts</a>
       <a href="#news" class="nav-link">📰 News</a>
     </nav>
+    <button id="darkModeToggle">🌙</button>
   </header>
 
   <main>
-    <div class="card">
-      <section id="screener">
-        <h2>📊 Stock Screener</h2>
-        <input type="text" id="searchInput" placeholder="Search stocks..." style="width:100%; padding:0.5rem; margin-bottom:1rem;">
-        <table>
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Company</th>
-              <th>Price</th>
-              <th>Change</th>
-              <th>Sector</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>AAPL</td>
-              <td>Apple Inc.</td>
-              <td>$175.20</td>
-              <td>+1.2%</td>
-              <td>Technology</td>
-            </tr>
-            <tr>
-              <td>MSFT</td>
-              <td>Microsoft Corp.</td>
-              <td>$322.50</td>
-              <td>-0.5%</td>
-              <td>Technology</td>
-            </tr>
-            <tr>
-              <td>JNJ</td>
-              <td>Johnson & Johnson</td>
-              <td>$158.80</td>
-              <td>+0.3%</td>
-              <td>Healthcare</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </div>
+    <section class="card" id="screener">
+      <h2>📊 Stock Screener</h2>
+      <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search stocks..." />
+        <select id="sectorFilter">
+          <option value="all">All Sectors</option>
+          <option value="Technology">Technology</option>
+          <option value="Healthcare">Healthcare</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Company</th>
+            <th>Price</th>
+            <th>Change</th>
+            <th>Sector</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AAPL</td>
+            <td>Apple Inc.</td>
+            <td>$175.20</td>
+            <td>+1.26%</td>
+            <td>Technology</td>
+          </tr>
+          <tr>
+            <td>MSFT</td>
+            <td>Microsoft Corp.</td>
+            <td>$322.20</td>
+            <td>-0.56%</td>
+            <td>Technology</td>
+          </tr>
+          <tr>
+            <td>JNJ</td>
+            <td>Johnson & Johnson</td>
+            <td>$158.80</td>
+            <td>+0.13%</td>
+            <td>Healthcare</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-    <div class="card">
-      <section id="charts">
-        <h2>📈 Charts & Indicators</h2>
-        <div class="tabs">
-          <button class="tab-button active" data-tab="price">Price</button>
-          <button class="tab-button" data-tab="rsi">RSI</button>
-          <button class="tab-button" data-tab="macd">MACD</button>
-        </div>
-        <div class="tab-content" id="price">
-          <canvas id="priceChart" width="400" height="200"></canvas>
-        </div>
-        <div class="tab-content" id="rsi" style="display:none;">
-          <p><strong>RSI:</strong> Relative Strength Index placeholder</p>
-        </div>
-        <div class="tab-content" id="macd" style="display:none;">
-          <p><strong>MACD:</strong> Moving Average Convergence Divergence placeholder</p>
-        </div>
-      </section>
-    </div>
+    <section class="card" id="charts">
+      <h2>📈 Charts & Indicators</h2>
+      <div class="tabs">
+        <button class="tab-button active" data-tab="price">Price</button>
+        <button class="tab-button" data-tab="rsi">RSI</button>
+        <button class="tab-button" data-tab="macd">MACD</button>
+      </div>
+      <div class="tab-content" id="price">
+        <canvas id="priceChart"></canvas>
+      </div>
+      <div class="tab-content" id="rsi" style="display:none;">
+        <p><strong>RSI:</strong> Relative Strength Index placeholder</p>
+      </div>
+      <div class="tab-content" id="macd" style="display:none;">
+        <p><strong>MACD:</strong> Moving Average Convergence Divergence placeholder</p>
+      </div>
+    </section>
 
-    <div class="card">
-      <section id="news">
-        <h2>📰 News Feed</h2>
-        <ul id="news-list">
-          <li><a href="#">[Sample Headline 1]</a> <span class="source">Reuters</span></li>
-          <li><a href="#">[Sample Headline 2]</a> <span class="source">Bloomberg</span></li>
-          <li><a href="#">[Sample Headline 3]</a> <span class="source">Financial Times</span></li>
-        </ul>
-      </section>
-    </div>
+    <section class="card" id="news">
+      <h2>📰 News Feed</h2>
+      <ul id="news-list">
+        <li><a href="#">Apple hits new high</a> <span class="source">Reuters</span></li>
+        <li><a href="#">Microsoft earnings beat expectations</a> <span class="source">Bloomberg</span></li>
+        <li><a href="#">Healthcare stocks rebound</a> <span class="source">Financial Times</span></li>
+      </ul>
+    </section>
   </main>
 
   <footer>
