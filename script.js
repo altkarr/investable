@@ -16,3 +16,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+// Enable column sorting
+document.addEventListener("DOMContentLoaded", () => {
+  const table = document.querySelector("table");
+  const headers = table.querySelectorAll("th");
+
+  headers.forEach((header, index) => {
+    header.addEventListener("click", () => {
+      sortTableByColumn(table, index);
+    });
+  });
+});
+
+function sortTableByColumn(table, columnIndex) {
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  const isNumeric = columnIndex === 2 || columnIndex === 3; // Price or Change
+  const direction = table.dataset.sortDirection === "asc" ? "desc" : "asc";
+  table.dataset.sortDirection = direction;
+
+  rows.sort((a, b) => {
+    let aText = a.cells[columnIndex].textContent.trim().replace(/[$%]/g, "");
+    let bText = b.cells[columnIndex].textContent.trim().replace(/[$%]/g, "");
+
+    if (isNumeric) {
+      aText = parseFloat(aText);
+      bText = parseFloat(bText);
+    }
+
+    if (aText < bText) return direction === "asc" ? -1 : 1;
+    if (aText > bText) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
