@@ -28,10 +28,20 @@
     <div class="card">
       <section>
         <h2>📈 Charts & Indicators</h2>
-        <!-- chart placeholders go here -->
-      </section>
-      <div class="chart-container">
-  <canvas id="priceChart"></canvas>
+       <div class="tabs">
+  <button class="tab-button active" data-tab="price">Price</button>
+  <button class="tab-button" data-tab="rsi">RSI</button>
+  <button class="tab-button" data-tab="macd">MACD</button>
+</div>
+
+<div class="tab-content" id="price">
+  <canvas id="priceChart" width="400" height="200"></canvas>
+</div>
+<div class="tab-content" id="rsi" style="display:none;">
+  <p><strong>RSI:</strong> Relative Strength Index placeholder</p>
+</div>
+<div class="tab-content" id="macd" style="display:none;">
+  <p><strong>MACD:</strong> Moving Average Convergence Divergence placeholder</p>
 </div>
 <div class="indicators">
   <p><strong>RSI:</strong> <span id="rsiValue">--</span></p>
