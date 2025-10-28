@@ -52,3 +52,16 @@ function sortTableByColumn(table, columnIndex) {
 
   rows.forEach(row => tbody.appendChild(row));
 }
+// Collapsible sections
+document.addEventListener("DOMContentLoaded", () => {
+  const headers = document.querySelectorAll("section h2");
+  headers.forEach(header => {
+    header.style.cursor = "pointer";
+    header.addEventListener("click", () => {
+      const content = header.nextElementSibling;
+      if (content) {
+        content.style.display = content.style.display === "none" ? "block" : "none";
+      }
+    });
+  });
+});
