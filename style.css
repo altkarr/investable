@@ -154,3 +154,6 @@ canvas {
 tbody tr:hover {
   background-color: #f9f9f9;
 }
+body, .card, header, footer {
+  transition: background 0.3s, color 0.3s;
+}
