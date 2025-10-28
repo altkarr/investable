@@ -53,7 +53,7 @@ function sortTableByColumn(table, columnIndex) {
   rows.forEach(row => tbody.appendChild(row));
 }
 
-// Collapsible sections
+// Collapsible sections (optional if using tabs)
 document.addEventListener("DOMContentLoaded", () => {
   const headers = document.querySelectorAll("section h2");
   headers.forEach(header => {
@@ -100,18 +100,29 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Search filter for stock table
+// Combined search + sector filter
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchInput");
+  const sectorFilter = document.getElementById("sectorFilter");
   const rows = document.querySelectorAll("tbody tr");
 
-  searchInput.addEventListener("keyup", () => {
-    const filter = searchInput.value.toLowerCase();
+  function filterRows() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedSector = sectorFilter.value;
+
     rows.forEach(row => {
       const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(filter) ? "" : "none";
+      const sector = row.cells[4].textContent.trim();
+
+      const matchesSearch = text.includes(searchTerm);
+      const matchesSector = selectedSector === "all" || sector === selectedSector;
+
+      row.style.display = matchesSearch && matchesSector ? "" : "none";
     });
-  });
+  }
+
+  searchInput.addEventListener("keyup", filterRows);
+  sectorFilter.addEventListener("change", filterRows);
 });
 
 // Highlight active nav link on scroll
@@ -131,6 +142,37 @@ document.addEventListener("scroll", () => {
     link.classList.remove("active");
     if (link.getAttribute("href").includes(current)) {
       link.classList.add("active");
+    }
+  });
+});
+
+// Chart.js sample chart
+document.addEventListener("DOMContentLoaded", () => {
+  const ctx = document.getElementById("priceChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      datasets: [{
+        label: "AAPL Price",
+        data: [172.5, 174.2, 175.8, 176.1, 175.2],
+        borderColor: "#0077cc",
+        backgroundColor: "rgba(0, 119, 204, 0.1)",
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { mode: "index", intersect: false }
+      },
+      scales: {
+        x: { display: true },
+        y: { display: true }
+      }
     }
   });
 });
