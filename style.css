@@ -24,3 +24,17 @@ th {
 th:hover {
   background-color: #e0e0e0;
 }
+#chart-area {
+  margin-top: 1rem;
+}
+
+#news-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#news-list li {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
