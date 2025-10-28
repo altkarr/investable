@@ -1,70 +1,71 @@
 console.log("Investable Dashboard is connected!");
 
 // 🔑 API Keys
-const ALPHA_KEY = "21E4S2APHN5VZ3UJ";
+const FINNHUB_KEY = "d40g571r01qqo3qhs74gd40g571r01qqo3qhs750";
 const NEWS_KEY = "b6cLSbSqdzwpoiX8IX0chVOki8ZaiqrPodq6eyC4";
 
-// 🔄 Stock metadata
-const stocks = [
-  { symbol: "AAPL", name: "Apple Inc.", sector: "Technology" },
-  { symbol: "MSFT", name: "Microsoft Corp.", sector: "Technology" },
-  { symbol: "JNJ", name: "Johnson & Johnson", sector: "Healthcare" }
-];
+// 🧠 Utility: Format change
+function formatChange(change) {
+  const value = parseFloat(change);
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(2)}%`;
+}
 
-// 📊 Fetch stock prices
+// 📊 Fetch most active stocks from Finnhub
 async function fetchStockData() {
   const tbody = document.getElementById("stockTableBody");
   tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
 
-  const rows = await Promise.all(stocks.map(async stock => {
-    try {
-      const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stock.symbol}&apikey=${ALPHA_KEY}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const quote = data["Global Quote"];
+  try {
+    const url = `https://finnhub.io/api/v1/news?category=general&token=${FINNHUB_KEY}`;
+    const res = await fetch(`https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${FINNHUB_KEY}`);
+    const symbols = await res.json();
 
-      if (!quote || Object.keys(quote).length === 0) {
+    const activeSymbols = symbols.slice(0, 5); // Top 5 for demo
+    const rows = await Promise.all(activeSymbols.map(async stock => {
+      const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stock.symbol}&token=${FINNHUB_KEY}`);
+      const quote = await quoteRes.json();
+
+      if (!quote || !quote.c) {
         return `<tr><td colspan="5">${stock.symbol} data unavailable</td></tr>`;
       }
 
-      const price = parseFloat(quote["05. price"]).toFixed(2);
-      const changeRaw = parseFloat(quote["10. change percent"]);
-      const change = `${changeRaw >= 0 ? "+" : ""}${changeRaw.toFixed(2)}%`;
+      const price = quote.c.toFixed(2);
+      const change = formatChange(quote.dp);
       const color = change.startsWith("+") ? "green" : "red";
 
       return `
         <tr>
           <td>${stock.symbol}</td>
-          <td>${stock.name}</td>
+          <td>${stock.description || stock.symbol}</td>
           <td>$${price}</td>
           <td style="color:${color}">${change}</td>
-          <td>${stock.sector}</td>
+          <td>${stock.type || "Equity"}</td>
         </tr>
       `;
-    } catch (err) {
-      console.error(`Error fetching ${stock.symbol}:`, err);
-      return `<tr><td colspan="5">${stock.symbol} fetch failed</td></tr>`;
-    }
-  }));
+    }));
 
-  tbody.innerHTML = rows.join("");
+    tbody.innerHTML = rows.join("");
+  } catch (err) {
+    console.error("Error fetching stock data:", err);
+    tbody.innerHTML = "<tr><td colspan='5'>Failed to load stock data.</td></tr>";
+  }
 }
 
-// 📈 Render Chart.js graph for AAPL
-async function renderChart() {
+// 📈 Render Chart.js graph for top stock
+async function renderChart(symbol = "AAPL") {
   try {
-    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=${ALPHA_KEY}`;
+    const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&count=5&token=${FINNHUB_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
-    const series = data["Time Series (Daily)"];
 
-    if (!series) {
+    if (!data || !data.c || data.c.length === 0) {
       console.warn("Chart data unavailable");
       return;
     }
 
-    const labels = Object.keys(series).slice(0, 5).reverse();
-    const prices = labels.map(date => parseFloat(series[date]["4. close"]));
+    const labels = data.t.map(ts => new Date(ts * 1000).toLocaleDateString());
+    const prices = data.c;
 
     const ctx = document.getElementById("priceChart").getContext("2d");
     new Chart(ctx, {
@@ -72,7 +73,7 @@ async function renderChart() {
       data: {
         labels,
         datasets: [{
-          label: "AAPL Price",
+          label: `${symbol} Price`,
           data: prices,
           borderColor: "#0077cc",
           backgroundColor: "rgba(0, 119, 204, 0.1)",
@@ -97,13 +98,13 @@ async function renderChart() {
   }
 }
 
-// 📰 Fetch financial news
+// 📰 Fetch financial news from Marketaux
 async function fetchNews() {
   const list = document.getElementById("news-list");
   list.innerHTML = "<li>Loading news...</li>";
 
   try {
-    const url = `https://api.marketaux.com/v1/news/all?symbols=AAPL,MSFT,JNJ&language=en&api_token=${NEWS_KEY}`;
+    const url = `https://api.marketaux.com/v1/news/all?language=en&api_token=${NEWS_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -194,6 +195,6 @@ document.addEventListener("scroll", () => {
 // 🚀 Initialize dashboard
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchStockData();
-  await renderChart();
+  await renderChart(); // Default to AAPL or top stock
   await fetchNews();
 });
