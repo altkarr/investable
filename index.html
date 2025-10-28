@@ -22,7 +22,10 @@
   <main>
     <section class="card" id="screener">
       <h2>📊 Active Stock Screener</h2>
-      <p>Click a row to view chart and indicators.</p>
+      <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search ticker..." />
+        <button id="searchButton">🔍 Search</button>
+      </div>
       <table>
         <thead>
           <tr>
